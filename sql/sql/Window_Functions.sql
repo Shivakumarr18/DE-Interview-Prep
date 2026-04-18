@@ -55,3 +55,56 @@ partition by department) as dept_avg_salary
 from employees) as e
 where salary > dept_avg_salary;
 
+#Problem 5: Find employees who earn more than the average salary of their department. Show name, salary,
+--  department, and department's average salary.
+select e.name, e.salary, e.department, dept_avg_salary from(
+select name, salary, department, avg(salary) over(
+partition by department) as dept_avg_salary
+from employees) as e
+where salary > dept_avg_salary;
+
+#Problem 6: For each department, show the highest paid and lowest paid employee names in a single row.
+--  (Output: department, highest_paid_name, lowest_paid_name)
+SELECT DISTINCT
+    department,
+    FIRST_VALUE(name) OVER(PARTITION BY department ORDER BY salary DESC) AS highest_paid_name,
+    FIRST_VALUE(name) OVER(PARTITION BY department ORDER BY salary ASC) AS lowest_paid_name
+FROM employees;
+
+-- Problem 7: Show each employee's name, salary, and the running total of salaries within their department,
+--  ordered by salary ascending.
+SELECT 
+    name, 
+    salary, 
+    department,
+    SUM(salary) OVER(PARTITION BY department ORDER BY salary ASC) AS running_total
+FROM employees;
+
+-- Problem 8: Find the top 2 highest paid employees in each department. If there are ties at rank 2,
+--  include all tied employees.
+SELECT name, salary, department
+FROM (
+    SELECT 
+        name, salary, department,
+        DENSE_RANK() OVER(PARTITION BY department ORDER BY salary DESC) as rnk
+    FROM employees
+) AS ranked_table
+WHERE rnk <= 2;
+-- Problem 9: For each employee, show their name, salary, and the salary of the person ranked immediately
+--  above them in the same department. If they're the highest paid in their department, show NULL.
+SELECT 
+    name, 
+    salary,
+    LAG(salary) OVER(PARTITION BY department ORDER BY salary ASC) AS salary_above
+FROM employees;
+-- Problem 10: Show each department along with the percentage contribution of each employee's salary to
+--  the department's total salary. Round to 2 decimals.
+SELECT 
+    department,
+    name,
+    salary,
+    ROUND(
+        (salary * 100.0) / SUM(salary) OVER(PARTITION BY department), 
+        2
+    ) AS percentage_contribution
+FROM employees;

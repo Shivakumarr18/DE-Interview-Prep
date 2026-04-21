@@ -108,3 +108,48 @@ SELECT
         2
     ) AS percentage_contribution
 FROM employees;
+
+-- Day 2 SQL — Aggregations & GROUP BY (10 problems)
+-- Part A — employees table (Problems 1-6)
+
+-- Problem 1: For each department, show the department name and total salary. Only include departments
+ -- where the total salary exceeds 150,000.
+select e.department, sum(e.salary) as total_salary from employees as e
+group by e.department
+having sum(e.salary) > 150000
+order by total_salary desc;
+
+-- Problem 2: Find departments where the average salary is greater than the overall company average
+--  salary. Return department name and its average salary.
+select e.department, avg(e.salary) as avg_salary from employees as e
+group by e.department
+having avg(salary) > (select avg(salary) from employees);
+ 
+-- Problem 3: For each department, show the number of employees, total salary, and the difference
+--  between the highest and lowest salary in that department. Sort by the difference descending.
+select e.department, count(e.id) as number_of_employees, sum(e.salary) as total_salary,
+max(e.salary) - min(e.salary) as salary_difference from employees as e
+group by e.department
+order by salary_difference desc;
+ 
+-- Problem 4: Find departments that have more than 2 employees AND where the maximum salary in that
+--  department is greater than 85,000. Return department name, employee count, and max salary.
+ select e.department, count(e.id) as employee_count, max(e.salary) as max_salary from employees as e
+ group by e.department
+ having count(e.id) > 2 and max(e.salary) > 85000;
+ 
+-- Problem 5: For each department, calculate what percentage its total salary contributes to the
+--  overall company salary. Round to 2 decimals. (Hint: you'll need a subquery or a windowed total.)
+ select e.department, sum(e.salary) as total_dept_salary,
+ round(sum(e.salary) * 100.0 / sum(sum(e.salary)) over(), 2) as percentage_contribution
+ from employees as e
+ group by e.department;
+ 
+-- Problem 6: Find the department with the highest average salary. Return just one row: department name
+--  and its average salary. (Don't use LIMIT — solve it with HAVING or a subquery so it handles ties 
+-- correctly.)
+select e.department, avg(e.salary) as avg_salary from employees as e
+group by e.department
+having avg(e.salary) = (SELECT MAX(dept_avg) FROM (
+SELECT AVG(salary) AS dept_avg FROM employees
+GROUP BY department) AS subquery);

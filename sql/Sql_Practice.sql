@@ -55,14 +55,6 @@ partition by department) as dept_avg_salary
 from employees) as e
 where salary > dept_avg_salary;
 
-#Problem 5: Find employees who earn more than the average salary of their department. Show name, salary,
---  department, and department's average salary.
-select e.name, e.salary, e.department, dept_avg_salary from(
-select name, salary, department, avg(salary) over(
-partition by department) as dept_avg_salary
-from employees) as e
-where salary > dept_avg_salary;
-
 #Problem 6: For each department, show the highest paid and lowest paid employee names in a single row.
 --  (Output: department, highest_paid_name, lowest_paid_name)
 SELECT DISTINCT
@@ -153,6 +145,7 @@ group by e.department
 having avg(e.salary) = (SELECT MAX(dept_avg) FROM (
 SELECT AVG(salary) AS dept_avg FROM employees
 GROUP BY department) AS subquery);
+
 -- Problem 7: For each flight_phase, count the number of incidents. Show only those flight phases with
 --  more than 100 incidents. Sort descending by count.
 SELECT COUNT(*) AS total_rows, COUNT(DISTINCT aircraft_id) AS unique_aircrafts

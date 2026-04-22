@@ -153,3 +153,70 @@ group by e.department
 having avg(e.salary) = (SELECT MAX(dept_avg) FROM (
 SELECT AVG(salary) AS dept_avg FROM employees
 GROUP BY department) AS subquery);
+-- Problem 7: For each flight_phase, count the number of incidents. Show only those flight phases with
+--  more than 100 incidents. Sort descending by count.
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT aircraft_id) AS unique_aircrafts
+FROM dim_aircraft;
+
+SELECT COUNT(*) AS total_rows, COUNT(DISTINCT aircraft_id) AS unique_aircrafts
+FROM fact_incidents;
+
+select da.flight_phase, count(fa.incident_id) as number_of_incidents from dim_aircraft as da
+join fact_incidents as fa on da.aircraft_id = fa.aircraft_id
+group by da.flight_phase
+having count(fa.incident_id) > 100
+order by number_of_incidents desc;
+
+-- Problem 8: For each operator in dim_aircraft, find the total number of incidents and the average
+-- altitude of those incidents. Show only operators with at least 50 incidents. Round average altitude 
+--  to 0 decimals.
+select * from fact_incidents;
+
+select da.operator, count(fa.incident_id) as total_incidents,
+round(avg(fa.altitude),0) as avg_altitude from dim_aircraft as da
+join fact_incidents as fa on da.aircraft_id = fa.aircraft_id
+group by da.operator
+having count(fa.incident_id) >= 50;
+
+-- Problem 9: For each year (from dim_time), show:
+-- Total incident count
+-- Number of incidents that happened on weekends (is_weekend = 1)
+-- Percentage of weekend incidents (rounded to 2 decimals)
+-- Sort by year ascending.
+select * from dim_time;
+
+select count(*) as total_rows, count(distinct time_id) as unique_rows from dim_time;
+select count(*) as total_rows, count(distinct time_id) as unique_rows from fact_incidents;
+
+SELECT dt.year, COUNT(fa.incident_id) AS total_incidents,
+    SUM(CASE WHEN dt.is_weekend THEN 1 ELSE 0 END) AS weekend_incidents,
+    ROUND(
+	SUM(CASE WHEN dt.is_weekend THEN 1 ELSE 0 END) * 100.0 / COUNT(fa.incident_id) ,2)
+    AS weekend_percentage
+FROM fact_incidents AS fa
+JOIN dim_time AS dt ON fa.time_id = dt.time_id
+GROUP BY dt.year
+ORDER BY dt.year asc;
+
+-- Problem 10 (the hardest one — classic interview trap):
+-- Find the top 3 flight_conditions (from dim_environment) with the highest average altitude of incidents.
+-- But here's the twist — only count incidents where the primary_problem is NOT NULL.
+-- Return: flight_conditions, incident_count, avg_altitude.
+-- (Watch out for: NULL handling in primary_problem, duplication from joins, and tie-breaking at rank 3.)
+
+select * from dim_environment;
+
+select count(*) as total_rows, count(distinct environment_id) as unique_rows from dim_environment;
+select count(*) as total_rows, count(distinct environment_id) as unique_rows from fact_incidents;
+
+SELECT flight_conditions, incident_count, avg_altitude
+FROM (
+    SELECT de.flight_conditions, COUNT(fi.incident_id) AS incident_count,
+        ROUND(AVG(fi.altitude), 2) AS avg_altitude,
+        DENSE_RANK() OVER (ORDER BY AVG(fi.altitude) DESC) AS rnk
+    FROM fact_incidents AS fi
+    JOIN dim_environment AS de ON fi.environment_id = de.environment_id
+    WHERE fi.primary_problem IS NOT NULL
+    GROUP BY de.flight_conditions
+) AS ranked
+WHERE rnk <= 3;

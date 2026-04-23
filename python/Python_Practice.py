@@ -128,3 +128,92 @@ def product_except_self(nums):
         right_product *= nums[i]
         
     return res
+
+# Problem 1: Given two lists, find elements that are in both lists (intersection), elements in only the first list, and elements in only the second list. Use sets.
+
+list1 = [1, 2, 3, 4, 5, 6]
+list2 = [4, 5, 6, 7, 8, 9]
+
+in_both = set(list1) & set(list2)
+only_first = set(list1) - set(list2)
+only_second = set(list2) - set(list1)
+
+print(f"in_both: {in_both}")
+print(f"only_first: {only_first}")
+print(f"only_second: {only_second}")
+
+# Problem 2: Given a list of words, return a dictionary where the key is the word length and the value is a list of words with that length. Preserve order of first appearance.
+words = ["cat", "elephant", "dog", "bird", "ant", "horse"]
+def group_words_by_length(word_list):
+    length_groups = {}
+    
+    for word in word_list:
+        length = len(word)
+        
+        # Check if this length is already a key
+        if length not in length_groups:
+            # Create a new list for this new length
+            length_groups[length] = [word]
+        else:
+            # Append to the list that already exists
+            length_groups[length].append(word)
+            
+    return length_groups
+
+# Run the function
+result = group_words_by_length(words)
+print(result)
+
+# Problem 3: Given a list of transactions (each a dict), compute total amount spent per customer. Return a dictionary {customer_id: total_amount}.
+pythontransactions = [
+    {"customer_id": "C1", "amount": 100},
+    {"customer_id": "C2", "amount": 200},
+    {"customer_id": "C1", "amount": 150},
+    {"customer_id": "C3", "amount": 50},
+    {"customer_id": "C2", "amount": 75},
+    {"customer_id": "C1", "amount": 300},
+]
+def total_per_customer(txns):
+    totals = {}
+    for t in txns:
+        cid = t["customer_id"]
+        amt = t["amount"]
+        # If cid exists, add to it; otherwise, initialize with current amount
+        totals[cid] = totals.get(cid, 0) + amt
+    return totals
+
+total_per_customer(pythontransactions)
+
+# # Problem 4: Given a string, check if it has all unique characters (no repeats). Return True/False. Solve two ways — one using a set, one without any extra data structure. Compare time complexity.
+# pythonis_unique("data")      # False  (two 'a's)
+# is_unique("python")    # True
+# is_unique("Shiva")     # True   (case-sensitive)
+
+def is_unique_set(text):
+    seen = set()
+    for char in text:
+        if char in seen:
+            return False
+        seen.add(char)
+    return True
+is_unique_set("data")  # False
+is_unique_set("python")  # True
+
+# Problem 5 (classic interview): Given two lists, find the first common element (not all common elements — just the first one that appears in both). If none, return None. Your solution must be O(n + m), not O(n × m).
+# pythonlist1 = [1, 5, 3, 7, 9, 11]
+# list2 = [8, 3, 2, 5, 7]
+
+list1 = [1, 5, 3, 7, 9, 11]
+list2 = [8, 3, 2, 5, 7]
+
+def first_common(l1, l2):
+    # Step 1: Convert l2 to a set (O(m) time)
+    set2 = set(l2)
+    
+    # Step 2: Iterate through l1 and check set2 (O(n) time)
+    for item in l1:
+        if item in set2:
+            return item # Returns the first match found in l1's order
+            
+    return None
+first_common(list1, list2)

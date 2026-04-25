@@ -16,8 +16,7 @@ the code. So I design errors like I would design a dashboard.
 
 ## What I want users of my code to feel
 
-Not frustration. Not confusion. A small sigh of relief — 
-"Oh, this error actually tells me what to do."
+Not frustration. Not confusion. A small sigh of relief — "Oh, this error actually tells me what to do."
 
 ## Why this matters
 

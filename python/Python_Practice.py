@@ -217,3 +217,65 @@ def first_common(l1, l2):
             
     return None
 first_common(list1, list2)
+
+#Problem-1:
+def output_message(*args, **kwargs):
+    for message in args:
+        print(f"message: {message}", end = " | ")
+    for key, value in kwargs.items():
+        print(f"{key} = {value}", end = " | ")
+
+    print()
+
+output_message("Pipeline_Started", "Loaded_Data", step = 1, source = "bronze")
+
+#porblem-2:
+employees = [
+    {"name": "Ravi", "salary": 80000, "dept": "Engineering"},
+    {"name": "Priya", "salary": 90000, "dept": "Engineering"},
+    {"name": "Sneha", "salary": 85000, "dept": "Sales"},
+    {"name": "Arjun", "salary": 60000, "dept": "HR"},
+    {"name": "Meena", "salary": 95000, "dept": "Sales"},
+]
+
+# The "Senior" Trick: 
+# To sort salary DESCENDING while dept is ASCENDING, 
+# we return a tuple: (department name, -salary)
+employees.sort(key=lambda x: (x['dept'], -x['salary']))
+
+# Printing the output in the requested format
+for emp in employees:
+    print(f"{emp['name']}, {emp['dept']}, {emp['salary']}")
+
+#Problem -3:
+from functools import reduce
+
+transactions = [50, 200, 1500, 75, 3000, 120, 800, 90]
+
+# 1. Filter: Keep only those > 100
+filtered = filter(lambda x: x > 100, transactions)
+
+# 2. Map: Convert each to its 2% fee
+fees = map(lambda x: x * 0.02, filtered)
+
+# 3. Reduce: Sum them up (start at 0.0)
+total_fees = reduce(lambda x, y: x + y, fees, 0.0)
+
+print(f"Total Fees: {total_fees}") 
+# Output: 112.4
+
+#Problem -4 :
+import pandas as pd
+
+df = pd.DataFrame({
+    "name": ["Ravi Kumar", "PRIYA SHARMA", "  amit gupta  ", "Sneha"],
+    "email": ["ravi@gmail.com", "PRIYA@YAHOO.COM", "amit@hotmail.com", None],
+})
+
+# name_clean: Strip whitespace + Title Case
+df['name_clean'] = df['name'].apply(lambda x: x.strip().title())
+
+# email_lower: Handle NULLs (None)
+df['email_lower'] = df['email'].apply(lambda x: x.lower() if x is not None else "NO EMAIL")
+
+print(df[['name_clean', 'email_lower']])

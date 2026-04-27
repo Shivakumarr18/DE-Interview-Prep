@@ -257,7 +257,7 @@ left join employees as e on d.dept_name = e.department and e.salary > 75000;
 -- total salary spent in that department
 -- department budget
 -- remaining budget (budget - total salary)
--- Sort by remaining_budget descending. Include Marketing (0 salary spent).
+-- Sort by remaining_budget descending. Include Marketing (0 salary spent)
 
 select d.dept_name, coalesce(sum(e.salary),0) as total_salary, d.budget,
 (d.budget-coalesce(sum(salary),0)) as remaining_budget from departments as d

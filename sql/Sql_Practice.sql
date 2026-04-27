@@ -213,3 +213,54 @@ FROM (
     GROUP BY de.flight_conditions
 ) AS ranked
 WHERE rnk <= 3;
+
+CREATE TABLE departments (
+    dept_name VARCHAR(50) PRIMARY KEY,
+    location VARCHAR(50),
+    budget INT
+);
+
+INSERT INTO departments VALUES
+('Engineering', 'Hyderabad', 500000),
+('Sales', 'Bangalore', 300000),
+('HR', 'Chennai', 150000),
+('Marketing', 'Mumbai', 200000);
+
+-- #Show every employee's name, salary, department, and the location of their department.
+
+select count(*) as total_rows, count(distinct dept_name) as unique_rows from departments;
+select count(*) as total_rows, count(distinct department) as unique_rows from employees;
+
+select e.name, e.salary, e.department, d.location from employees as e
+join departments as d on e.department = d.dept_name
+order by e.salary desc;
+
+-- Problem 2 — LEFT JOIN with empty side
+-- Show ALL departments and the count of employees in each. Include departments with zero employees.
+-- Output: dept_name, location, employee_count
+
+select d.dept_name, d.location, count(e.id) as employee_count from departments as d
+left join employees as e on d.dept_name = e.department
+group by d.dept_name, d.location;
+
+-- Problem 3 — Filter on right table of LEFT JOIN
+-- Show ALL departments and their employees who earn more than 75,000. Include departments where no
+-- such high-earner exists (show NULL for the employee).
+-- Output: dept_name, name, salary
+
+select d.dept_name, e.name, e.salary from departments as d
+left join employees as e on d.dept_name = e.department and e.salary > 75000;
+
+-- Problem 4 — Multi-table join with aggregation
+-- For each department, show:
+-- dept_name
+-- total salary spent in that department
+-- department budget
+-- remaining budget (budget - total salary)
+-- Sort by remaining_budget descending. Include Marketing (0 salary spent).
+
+select d.dept_name, coalesce(sum(e.salary),0) as total_salary, d.budget,
+(d.budget-coalesce(sum(salary),0)) as remaining_budget from departments as d
+left join employees as e on d.dept_name = e.department
+group by d.dept_name, d.budget
+order by remaining_budget desc;

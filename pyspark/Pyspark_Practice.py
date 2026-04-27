@@ -101,3 +101,35 @@ df.groupBy("department").agg(
     F.max("salary").alias("max_salary"),
     F.min("salary").alias("min_salary")
 ).show()
+
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import *
+
+# spark is already available in Databricks
+
+# Create employees DataFrame
+emp_data = [
+    (1, "Ravi", 80000, "Engineering"),
+    (2, "Priya", 90000, "Engineering"),
+    (3, "Amit", 70000, "Engineering"),
+    (4, "Sneha", 85000, "Sales"),
+    (5, "Kiran", 75000, "Sales"),
+    (6, "Meena", 95000, "Sales"),
+    (7, "Arjun", 60000, "HR"),
+    (8, "Divya", 65000, "HR"),
+]
+emp_cols = ["id", "name", "salary", "department"]
+emp_df = spark.createDataFrame(emp_data, emp_cols)
+
+# Create departments DataFrame
+dept_data = [
+    ("Engineering", "Hyderabad", 500000),
+    ("Sales", "Bangalore", 300000),
+    ("HR", "Chennai", 150000),
+    ("Marketing", "Mumbai", 200000),
+]
+dept_cols = ["dept_name", "location", "budget"]
+dept_df = spark.createDataFrame(dept_data, dept_cols)
+
+emp_df.show()
+dept_df.show()

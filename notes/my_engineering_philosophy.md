@@ -5,7 +5,7 @@ exist only to signal "something went wrong." I believe errors are a
 UI — the last thing a user sees before they form an opinion about 
 the code. So I design errors like I would design a dashboard.
 
-## Principles I follow:
+## Principles I follow
 
 - **Every error answers 3 questions:** what broke, where, and what to do next.
 - **No one should need to open Google** to understand a failure in my pipeline.

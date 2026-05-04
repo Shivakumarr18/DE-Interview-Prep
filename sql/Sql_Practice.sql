@@ -333,4 +333,20 @@ left join orders as o on c.customer_id = o.customer_id
 group by c.customer_id, c.customer_name
 order by Total_orders desc;
 
--- Q2.3: 
+-- Q.2.3: Find all products that have never appeared in any order.
+select * from products;
+
+select p.product_name from products as p
+left join order_items as oi on p.product_id = oi.product_id
+where oi.order_item_id is null;
+
+-- Q.2.4: Show the order_id, customer name, product name, quantity, and total line value for all 
+-- delivered orders.
+select o.order_id, c.customer_name, p.product_name, oi.quantity, sum(oi.quantity * oi.unit_price) as
+total_line from order_items as oi
+join orders as o on oi.order_id = o.order_id
+join customers as c on o.customer_id = c.customer_id
+join products as p on oi.product_id = p.product_id
+where o.order_status = "delivered"
+group by o.order_id, c.customer_name, p.product_name, oi.quantity
+order by o.order_id;

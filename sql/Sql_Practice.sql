@@ -332,3 +332,5 @@ select c.customer_id, c.customer_name, count(o.order_id) as Total_orders from cu
 left join orders as o on c.customer_id = o.customer_id
 group by c.customer_id, c.customer_name
 order by Total_orders desc;
+
+-- Q2.3: 

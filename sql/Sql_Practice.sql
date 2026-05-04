@@ -264,3 +264,71 @@ select d.dept_name, coalesce(sum(e.salary),0) as total_salary, d.budget,
 left join employees as e on d.dept_name = e.department
 group by d.dept_name, d.budget
 order by remaining_budget desc;
+
+DROP DATABASE success;
+CREATE DATABASE sql_prep;
+USE sql_prep;
+
+-- 1. Aggregations & GROUP BY
+-- Total, average, count by group. Foundation of all analysis.
+-- Key keywords: GROUP BY, SUM, COUNT, AVG, HAVING
+
+-- Q1: Find the total revenue and order count per country, only for delivered orders. Sort by
+--  revenue descending.
+select * from orders;
+select count(*) as total_rows, count(distinct customer_id) as unique_rows from orders;
+select count(*) as total_rows, count(distinct customer_id) as unique_rows from customers;
+
+select c.country, o.order_status, sum(o.total_amount) as Total_revenue from customers as c
+join orders as o on c.customer_id = o.customer_id
+where o.order_status = "Delivered"
+group by c.country
+order by Total_revenue desc;
+
+-- Q.1.2: Find the average order value (AOV) per customer segment. Show only segments with more than 5 
+-- delivered orders.
+
+select c.segment, count(o.order_id) as order_count, round(avg(o.total_amount),2) as Avg_order_value
+from customers as c
+join orders as o on c.customer_id = o.customer_id
+where o.order_status = "Delivered"
+group by c.segment
+having count(o.order_id) > 5
+order by avg_order_value desc;
+
+-- Q.1.3: How many unique customers placed an order each month in 2024?
+select * from orders;
+
+select count(distinct customer_id) as Unique_customer, month(o.order_date) as months from orders as o
+where year(o.order_date) = 2024
+group by months;
+
+-- Q.1.4: List product categories whose total revenue (qty × unit_price) exceeds $50,000.
+select * from products;
+select * from order_items;
+
+select count(*) as total_rows, count(distinct product_id) from products;
+select count(*) as total_rows, count(distinct product_id) from order_items;
+
+select p.category, sum(oi.unit_price * oi.quantity) as Total_revenue from products as p
+join order_items as oi on p.product_id = oi.product_id
+group by p.category
+having sum(oi.unit_price * oi.quantity) > 50000
+order by Total_revenue desc;
+
+-- PATTERN 2 — JOINs (Inner, Left, Self, Cross)
+-- 💡 Why this pattern matters
+-- LEFT JOIN trips up most candidates. Inner gives you only matches. Left gives you everything from the
+--  left table — even rows with no match (those columns become NULL). Knowing when to use each = senior
+-- -level thinking.
+
+-- Q2.1 —  Find all customers who have never placed an order.
+select c.customer_id, c.customer_name, c.country from customers as c
+left join orders as o on c.customer_id = o.order_id
+where o.order_id is null;
+
+-- Q.2.2: Show every customer with their order count. Customers with no orders should show 0.
+select c.customer_id, c.customer_name, count(o.order_id) as Total_orders from customers as c
+left join orders as o on c.customer_id = o.customer_id
+group by c.customer_id, c.customer_name
+order by Total_orders desc;

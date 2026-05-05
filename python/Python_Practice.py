@@ -279,3 +279,40 @@ df['name_clean'] = df['name'].apply(lambda x: x.strip().title())
 df['email_lower'] = df['email'].apply(lambda x: x.lower() if x is not None else "NO EMAIL")
 
 print(df[['name_clean', 'email_lower']])
+
+# 1. Strings & Text Manipulation
+# Parsing, formatting, regex basics. The most common interview warmup.
+# Key keywords: split, strip, replace, regex
+
+# PATTERN 1 — Strings & Text Manipulation
+# Why this pattern matters
+# Almost every DE pipeline starts with messy strings — log files, CSVs, JSON. Knowing how to parse, clean, and transform strings cleanly is non-negotiable.
+# Common methods to know cold: .strip(), .lower(), .upper(), .split(), .replace(), .startswith(), .endswith(), f-strings, .join()
+
+# 1.1: Given the string '  Hello World  ', return it cleaned up — no leading/trailing spaces, all lowercase.
+text = "'  Hello World  "
+cleaned_text = text.strip().lower()
+print(cleaned_text)
+
+#1.2: Given a sentence, count how many times each word appears. Case-insensitive. Example: 'The cat and the dog' → {'the': 2, 'cat': 1, 'and': 1, 'dog': 1}
+from collections import Counter
+sentence = "The cat and the dog"
+words = sentence.lower().split()
+words_count = Counter(words)
+print(words_count)
+
+#1.3: Given a list of email addresses, return only valid Gmail addresses. Format: must contain '@gmail.com'.
+import pandas as pd
+
+df = pd.read_excel("/Volumes/workspace/default/practicedata/Python_Practice_Data.xlsx", 
+                    sheet_name="messy_data", header=None, skiprows=1)
+                    
+df.columns = ['id', 'name', 'email', 'phone', 'salary', 'join_date']
+emails = df['email'].dropna().tolist()
+ 
+gmail_only = [
+    e.strip().lower()
+    for e in emails
+    if isinstance(e, str) and '@gmail.com' in e.strip().lower()
+]
+print(gmail_only)

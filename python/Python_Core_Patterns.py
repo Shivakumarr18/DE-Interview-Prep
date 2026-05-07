@@ -80,3 +80,59 @@ nums[0], nums[4] = nums[4], nums[0]
 nums[1], nums[3] = nums[3], nums[1]
 print(nums)
 
+# Q4: Count Vowels in a String
+text = "Shiva".lower()
+vowels = "aeiou"
+count = 0
+for i in text:
+    if i in vowels:
+        count += 1
+print(count)
+
+# Mini Challenge for Q4
+# Problem: Given a sentence, find which vowel appears the most and how many times.
+# Input:  "banana is a amazing fruit"
+# Output: "a appears 7 times"
+
+sentence = "banana is a amazing fruit".lower()
+vowels = "aeiou"
+freq = {}
+for i in sentence:
+    if i in vowels:
+        freq[i] = freq.get(i,0) + 1
+print(freq)
+
+max_vowel = ""
+max_count = 0
+for vowel, count in freq.items():
+    if count > max_count:
+        max_count = count
+        max_vowel = vowel
+
+print(f"{max_vowel} appears {max_count} times")
+
+# Q5: Find Length of String (Without len())
+
+text = "shiva kumar"
+count = 0
+for i in text:
+    count += 1
+print(count)
+
+# Problem: Given two strings, find which one is longer without using len(), and print by how many characters.
+# Input:  "python", "java"
+# Output: "python is longer by 2 characters"
+
+str1 = "python"
+str2 = "java"
+count1 = 0
+count2 = 0
+for i in str1:
+    count1 += 1
+for j in str2:
+    count2 += 1
+if count1 > count2:
+    print(f"{str1} is longer by {count1 - count2} characters")
+else:
+    print(f"{str2} is longer by {count2 - count1} characters")
+

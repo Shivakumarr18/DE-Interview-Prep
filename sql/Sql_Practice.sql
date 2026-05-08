@@ -317,7 +317,7 @@ having sum(oi.unit_price * oi.quantity) > 50000
 order by Total_revenue desc;
 
 -- PATTERN 2 — JOINs (Inner, Left, Self, Cross)
--- 💡 Why this pattern matters
+--  Why this pattern matters
 -- LEFT JOIN trips up most candidates. Inner gives you only matches. Left gives you everything from the
 --  left table — even rows with no match (those columns become NULL). Knowing when to use each = senior
 -- -level thinking.
@@ -350,3 +350,13 @@ join products as p on oi.product_id = p.product_id
 where o.order_status = "delivered"
 group by o.order_id, c.customer_name, p.product_name, oi.quantity
 order by o.order_id;
+
+-- PATTERN 3 — Window Functions — Ranking
+--  Why this pattern matters
+-- This is THE most common Google SQL question. Top-N per group. The difference between ROW_NUMBER, RANK, and DENSE_RANK
+--  trips up 80% of candidates.
+-- •	ROW_NUMBER — assigns unique sequential numbers, breaks ties arbitrarily
+-- •	RANK — same number for ties, but skips the next number (1, 1, 3, 4)
+-- •	DENSE_RANK — same number for ties, NO skip (1, 1, 2, 3)
+
+-- Q3.1 — For each product category, find the top 3 products by total revenue.

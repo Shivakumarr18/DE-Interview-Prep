@@ -360,3 +360,89 @@ order by o.order_id;
 -- •	DENSE_RANK — same number for ties, NO skip (1, 1, 2, 3)
 
 -- Q3.1 — For each product category, find the top 3 products by total revenue.
+select * from products;
+
+select * from (
+select p.product_name, p.category, sum(oi.quantity * oi.unit_price) as Total_revenue , row_number()
+over( partition by p.category order by sum(oi.quantity * oi.unit_price) desc) as rn
+from order_items as oi
+join products as p on oi.product_id = p.product_id
+group by p.category, p.product_name
+) ranked
+where rn <=3 
+order by category , rn;
+
+-- Mini Challenge for Q3.1
+-- Problem: For each category, find the bottom 2 products by revenue (least selling).
+select * from (
+select p.product_name, p.category, sum(oi.quantity * oi.unit_price) as Total_revenue , row_number()
+over( partition by p.category order by sum(oi.quantity * oi.unit_price) asc) as rn
+from order_items as oi
+join products as p on oi.product_id = p.product_id
+group by p.category, p.product_name
+) ranked
+where rn <= 2
+order by category, rn
+ 
+-- 3.2: For each customer, find their most expensive order.
+select * from customers;
+select * from orders;
+select * from (
+select c.customer_name, o.order_id, o.total_amount ,row_number()
+over(partition by c.customer_name order by total_amount desc) as rn
+from customers as c
+join orders as o on c.customer_id = o.customer_id
+) ranked
+where rn =1 ;
+
+-- mini challenge for Q3.2:
+-- Problem: For each customer, find their least expensive order (instead of most expensive).
+--  Show customer name, order_id, and total_amount.
+select * from (
+select c.customer_name, o.order_id, o.total_amount, row_number()
+over(partition by c.customer_name order by o.total_amount asc) as rn
+from customers as c
+join orders as o on c.customer_id = o.customer_id) ranked
+where rn = 1;
+
+-- 3.3: Rank all customers by their total delivered-order spend. Customers with the same spend should 
+-- share the same rank.
+select * from (
+select c.customer_name, o.order_id, o.total_amount, dense_rank() over (
+partition by c.customer_name order by o.total_amount desc) as dr
+from customers as c
+left join orders as o on c.customer_id = o.customer_id
+and o.order_status = "Delivered") as ranked
+where dr = 1;
+
+-- Mini Challenge for Q3.3:
+-- Problem: For each category, find the product that has been ordered the most number of times (not by
+-- revenue, by order count). If two products have the same order count, they should share the same rank.
+-- Tables: products, order_items
+-- Show: category, product_name, order_count, rank
+
+select * from (
+select p.product_name, p.category, count(oi.order_id) as order_count , dense_rank() over(
+partition by p.category order by count(oi.order_id) desc) as dr
+from products as p 
+join order_items as oi on p.product_id = oi.product_id
+group by p.category, p.product_name) as ranked
+where dr = 1
+order by order_count desc;
+
+-- 3.4:  For each customer, find both their first and last order date
+select c.customer_name, min(o.order_date) as First_order, max(o.order_date) as Last_order 
+from customers as c
+join orders as o on c.customer_id = o.customer_id
+group by c.customer_name
+order by c.customer_name;
+
+-- Mini Challenge:
+-- Problem: For each customer, show their name, first order date, last order date, and the number of 
+-- days between their first and last order (call it customer_lifetime_days).
+
+select c.customer_name, min(o.order_date) as First_order, max(o.order_date) as Last_order, 
+datediff(max(o.order_date) , min(o.order_date)) as customer_lifetime_days from customers as c
+join orders as o on c.customer_id = o.customer_id
+group by c.customer_name
+order by c.customer_name;

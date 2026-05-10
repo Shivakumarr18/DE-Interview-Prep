@@ -446,3 +446,21 @@ datediff(max(o.order_date) , min(o.order_date)) as customer_lifetime_days from c
 join orders as o on c.customer_id = o.customer_id
 group by c.customer_name
 order by c.customer_name;
+
+-- PATTERN 4 — Window Functions — Analytics (Running totals, LAG/LEAD)
+-- 💡 Why this pattern matters
+-- Running totals, moving averages, period-over-period comparisons. LAG looks at the previous row. 
+-- LEAD looks at the next row. SUM() OVER computes cumulative totals.
+-- Q4.1 — Show monthly revenue along with the cumulative running total for the year.
+
+select * from daily_sales;
+select order_month, monthly_revenue, SUM(monthly_revenue) OVER (ORDER BY order_month) AS running_total
+from (
+select date_format(sale_date, '%Y-%m') as order_month, sum(revenue) as monthly_revenue from daily_sales
+group by date_format(sale_date, '%Y-%m') ) monthly
+order by order_month;
+
+--  Mini Challenge:
+-- Problem: Using daily_sales, show monthly revenue, running total, and each month's percentage of total
+--  yearly revenue.
+-- Expected: order_month, monthly_revenue, running_total, pct_of_total

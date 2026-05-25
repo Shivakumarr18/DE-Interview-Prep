@@ -447,6 +447,9 @@ join orders as o on c.customer_id = o.customer_id
 group by c.customer_name
 order by c.customer_name;
 
+# Practice questions on above 3 patterns. 3 questions on 3 patterns :
+
+
 -- PATTERN 4 — Window Functions — Analytics (Running totals, LAG/LEAD)
 -- 💡 Why this pattern matters
 -- Running totals, moving averages, period-over-period comparisons. LAG looks at the previous row. 
@@ -464,3 +467,5 @@ order by order_month;
 -- Problem: Using daily_sales, show monthly revenue, running total, and each month's percentage of total
 --  yearly revenue.
 -- Expected: order_month, monthly_revenue, running_total, pct_of_total
+
+

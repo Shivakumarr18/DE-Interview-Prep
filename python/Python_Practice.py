@@ -317,11 +317,4 @@ gmail_only = [
 ]
 print(gmail_only)
 
-# DAY 1 (May 25) — Strings I: traversal and counting
-# Concept refresher: String indexing and slicing (s[::-1], s[2:5]), iterating characters with a for loop, enumerate() for index+value, strings are immutable (you can't do s[0] = 'x').
-# Problems:
-# 1.	Reverse a string without slicing (use a loop, build the result).
-# 2.	Count the frequency of each character in a string (return a dict).
-# 3.	Count vowels and consonants in a string.
-# Stretch goal: After solving #1 the loop way, also write the one-line slice version (s[::-1]) and notice the difference. Know both.
 

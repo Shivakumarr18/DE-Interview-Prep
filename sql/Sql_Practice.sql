@@ -463,9 +463,5 @@ select date_format(sale_date, '%Y-%m') as order_month, sum(revenue) as monthly_r
 group by date_format(sale_date, '%Y-%m') ) monthly
 order by order_month;
 
---  Mini Challenge:
--- Problem: Using daily_sales, show monthly revenue, running total, and each month's percentage of total
---  yearly revenue.
--- Expected: order_month, monthly_revenue, running_total, pct_of_total
 
 

@@ -461,7 +461,7 @@ select order_month, monthly_revenue, SUM(monthly_revenue) OVER (ORDER BY order_m
 from (
 select date_format(sale_date, '%Y-%m') as order_month, sum(revenue) as monthly_revenue from daily_sales
 group by date_format(sale_date, '%Y-%m') ) monthly
-order by order_month
+order by order_month;
 
 
 

@@ -1,7 +1,7 @@
 # DE-Interview-Prep
 ## Goal
 
-Build depth in SQL, Python, and PySpark through daily practice. Apply concepts in real projects — not just solve isolated problems..
+Build depth in SQL, Python, and PySpark through daily practice. Apply concepts in real projects — not just solve isolated problems.
 
 DE-Interview-Prep/
 ├── sql/

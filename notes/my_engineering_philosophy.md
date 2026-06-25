@@ -3,7 +3,7 @@
 Most developers treat error messages as noise — cryptic strings that 
 exist only to signal "something went wrong." I believe errors are a 
 UI — the last thing a user sees before they form an opinion about 
-the code. So I design errors like I would design a dashboard...
+the code. So I design errors like I would design a dashboard.
 
 ## Principles I follow
 

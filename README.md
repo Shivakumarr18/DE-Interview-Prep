@@ -1,7 +1,9 @@
 # DE-Interview-Prep
-## Goal
+## Goal 
 
-Build depth in SQL, Python, and PySpark through daily practice. Apply concepts in real projects — not just solve isolated problems.
+Build depth in SQL, Python, and PySpark through daily practice.
+Apply concepts in real projects — not just solve isolated problems.
+
 DE-Interview-Prep/
 ├── sql/
 │   ├── Window_Functions.sql
@@ -18,11 +20,13 @@ DE-Interview-Prep/
 │   ├── OOP_Classes.py
 │   ├── File_Handling.py
 │   ├── Pandas_Basics.py
-│   └── Pandas_Advanced.py
+│   └── Pandas_and_FileIO.py
 └── pyspark/
-    ├── DataFrame_Basics.py
-    ├── Transformations.py
-    ├── Joins_and_Unions.py
-    ├── Window_Functions.py
-    ├── Aggregations.py
-    └── Full_Pipeline_Silver_Gold.py
+├── DataFrame_Basics.py
+├── Schema_and_DataTypes.py
+├── Transformations.py
+├── Aggregations.py
+├── Joins_and_Unions.py
+├── Window_Functions.py
+├── Performance_Optimization.py
+└── Full_Pipeline_Silver_Gold.py

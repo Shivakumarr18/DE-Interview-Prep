@@ -463,7 +463,7 @@ select date_format(sale_date, '%Y-%m') as order_month, sum(revenue) as monthly_r
 group by date_format(sale_date, '%Y-%m') ) monthly
 order by order_month;
 
-vss
+
 
 
 

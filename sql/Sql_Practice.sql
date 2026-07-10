@@ -273,195 +273,101 @@ USE sql_prep;
 -- Total, average, count by group. Foundation of all analysis.
 -- Key keywords: GROUP BY, SUM, COUNT, AVG, HAVING
 
--- Q1: Find the total revenue and order count per country, only for delivered orders. Sort by
---  revenue descending.
+-- SQL_Practice_1_Ecommerce.xlsx (customers, orders)
+-- ❓ Find the total revenue and order count per country, only for delivered orders.
+--  Sort by revenue descending.
+select * from customers ;
 select * from orders;
-select count(*) as total_rows, count(distinct customer_id) as unique_rows from orders;
-select count(*) as total_rows, count(distinct customer_id) as unique_rows from customers;
 
-select c.country, o.order_status, sum(o.total_amount) as Total_revenue from customers as c
+select c.country, count(o.order_id) as order_count, sum(o.total_amount) as Total_revenue from customers as c
 join orders as o on c.customer_id = o.customer_id
 where o.order_status = "Delivered"
 group by c.country
-order by Total_revenue desc;
+order by total_revenue desc;
 
--- Q.1.2: Find the average order value (AOV) per customer segment. Show only segments with more than 5 
--- delivered orders.
+-- Q1.2 — Average order value per customer segment
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (customers, orders)
+-- ❓ Find the average order value (AOV) per customer segment. Show only segments with more
+--  than 5 delivered orders.
 
-select c.segment, count(o.order_id) as order_count, round(avg(o.total_amount),2) as Avg_order_value
+select c.segment, count(o.order_id) as order_count, round(avg(o.total_amount),2) as avg_order_value
 from customers as c
 join orders as o on c.customer_id = o.customer_id
-where o.order_status = "Delivered"
-group by c.segment
-having count(o.order_id) > 5
-order by avg_order_value desc;
+where o.order_status = 'Delivered'
 
--- Q.1.3: How many unique customers placed an order each month in 2024?
-select * from orders;
+-- Q1.3 — Count of unique customers per month
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (orders)
+-- ❓ How many unique customers placed an order each month in 2024?
 
-select count(distinct customer_id) as Unique_customer, month(o.order_date) as months from orders as o
-where year(o.order_date) = 2024
-group by months;
+select count(distinct o.customer_id) as unique_customer, month(o.order_date) as month_num from orders as o
+WHERE order_date >= '2024-01-01' AND order_date < '2025-01-01'
+group by month_num
+order by month_num desc;
 
--- Q.1.4: List product categories whose total revenue (qty × unit_price) exceeds $50,000.
-select * from products;
+-- Q1.4 — Categories with revenue above $50,000
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (products, order_items)
+-- ❓ List product categories whose total revenue (qty × unit_price) exceeds $50,000.
+
 select * from order_items;
-
-select count(*) as total_rows, count(distinct product_id) from products;
-select count(*) as total_rows, count(distinct product_id) from order_items;
-
-select p.category, sum(oi.unit_price * oi.quantity) as Total_revenue from products as p
-join order_items as oi on p.product_id = oi.product_id
+select p.category, sum(o.quantity * o.unit_price) as total_revenue from order_items as o
+join products as p on o.product_id = p.product_id
 group by p.category
-having sum(oi.unit_price * oi.quantity) > 50000
-order by Total_revenue desc;
+having sum(o.quantity * o.unit_price) > 50000
+order by total_revenue desc;
 
--- PATTERN 2 — JOINs (Inner, Left, Self, Cross)
---  Why this pattern matters
--- LEFT JOIN trips up most candidates. Inner gives you only matches. Left gives you everything from the
---  left table — even rows with no match (those columns become NULL). Knowing when to use each = senior
--- -level thinking.
+-- Practice_Problems(2):
 
--- Q2.1 —  Find all customers who have never placed an order.
-select c.customer_id, c.customer_name, c.country from customers as c
-left join orders as o on c.customer_id = o.order_id
-where o.order_id is null;
+-- Find the top 3 customer segments by  total revenue AND average order value.
+-- But only include:
+-- → Orders placed in 2024
+-- → Order status = 'Delivered'
+-- → Segments with more than 10 orders
+-- Show: segment, total_orders, total_revenue, avg_order_value Sort: total_revenue descending
 
--- Q.2.2: Show every customer with their order count. Customers with no orders should show 0.
-select c.customer_id, c.customer_name, count(o.order_id) as Total_orders from customers as c
-left join orders as o on c.customer_id = o.customer_id
-group by c.customer_id, c.customer_name
-order by Total_orders desc;
-
--- Q.2.3: Find all products that have never appeared in any order.
-select * from products;
-
-select p.product_name from products as p
-left join order_items as oi on p.product_id = oi.product_id
-where oi.order_item_id is null;
-
--- Q.2.4: Show the order_id, customer name, product name, quantity, and total line value for all 
--- delivered orders.
-select o.order_id, c.customer_name, p.product_name, oi.quantity, sum(oi.quantity * oi.unit_price) as
-total_line from order_items as oi
-join orders as o on oi.order_id = o.order_id
+select c.segment, count(o.order_id) as total_orders, sum(o.total_amount) as total_revenue,
+round(avg(o.total_amount),2) as avg_order_value from orders as o 
 join customers as c on o.customer_id = c.customer_id
-join products as p on oi.product_id = p.product_id
-where o.order_status = "delivered"
-group by o.order_id, c.customer_name, p.product_name, oi.quantity
-order by o.order_id;
+where o.order_status = 'Delivered' AND o.order_date >= '2024-01-01' AND o.order_date < '2025-01-01'
+group by c.segment
+having count(o.order_id) > 10
+order by total_revenue desc
+limit 3;
 
--- PATTERN 3 — Window Functions — Ranking
---  Why this pattern matters
--- This is THE most common Google SQL question. Top-N per group. The difference between ROW_NUMBER, RANK, and DENSE_RANK
---  trips up 80% of candidates.
--- •	ROW_NUMBER — assigns unique sequential numbers, breaks ties arbitrarily
--- •	RANK — same number for ties, but skips the next number (1, 1, 3, 4)
--- •	DENSE_RANK — same number for ties, NO skip (1, 1, 2, 3)
+-- For each product category find:
+-- → total_orders (count of order_items)
+-- → total_revenue (quantity × unit_price)
+-- → avg_revenue_per_order
+-- → max_single_order_value (max of quantity × unit_price)
+-- Only include categories where:
+-- → total_revenue > 10,000
+-- → total_orders > 20
+-- Sort by avg_revenue_per_order descending
 
--- Q3.1 — For each product category, find the top 3 products by total revenue.
-select * from products;
+select p.category, count(o.order_item_id) as total_orders, sum(o.quantity * o.unit_price) as total_revenue,
+round(avg(o.quantity * o.unit_price),2) as avg_revenue_per_order, max(o.quantity * o.unit_price) as 
+max_single_order_value from order_items as o
+join products as p on o.product_id = p.product_id
+group by p.category
+having sum(o.quantity * o.unit_price) > 10000 and count(o.order_item_id) > 20
+order by avg_revenue_per_order desc;
 
-select * from (
-select p.product_name, p.category, sum(oi.quantity * oi.unit_price) as Total_revenue , row_number()
-over( partition by p.category order by sum(oi.quantity * oi.unit_price) desc) as rn
-from order_items as oi
-join products as p on oi.product_id = p.product_id
-group by p.category, p.product_name
-) ranked
-where rn <=3 
-order by category , rn;
+#Important Concept to remeber. 
 
--- Mini Challenge for Q3.1
--- Problem: For each category, find the bottom 2 products by revenue (least selling).
-select * from (
-select p.product_name, p.category, sum(oi.quantity * oi.unit_price) as Total_revenue , row_number()
-over( partition by p.category order by sum(oi.quantity * oi.unit_price) asc) as rn
-from order_items as oi
-join products as p on oi.product_id = p.product_id
-group by p.category, p.product_name
-) ranked
-where rn <= 2
-order by category, rn
- 
--- 3.2: For each customer, find their most expensive order.
-select * from customers;
-select * from orders;
-select * from (
-select c.customer_name, o.order_id, o.total_amount ,row_number()
-over(partition by c.customer_name order by total_amount desc) as rn
-from customers as c
-join orders as o on c.customer_id = o.customer_id
-) ranked
-where rn =1 ;
+SELECT
+    p.category,
+    MAX(oi.quantity * oi.unit_price)  AS max_order_value,
+    MIN(oi.quantity * oi.unit_price)  AS min_order_value,
+    AVG(oi.quantity * oi.unit_price)  AS avg_order_value,
+    STDDEV(oi.quantity * oi.unit_price) AS std_deviation,
+    COUNT(oi.order_item_id)           AS total_orders
+FROM order_items oi
+JOIN products p ON oi.product_id = p.product_id
+GROUP BY p.category;
 
--- mini challenge for Q3.2:
--- Problem: For each customer, find their least expensive order (instead of most expensive).
---  Show customer name, order_id, and total_amount.
-select * from (
-select c.customer_name, o.order_id, o.total_amount, row_number()
-over(partition by c.customer_name order by o.total_amount asc) as rn
-from customers as c
-join orders as o on c.customer_id = o.customer_id) ranked
-where rn = 1;
-
--- 3.3: Rank all customers by their total delivered-order spend. Customers with the same spend should 
--- share the same rank.
-select * from (
-select c.customer_name, o.order_id, o.total_amount, dense_rank() over (
-partition by c.customer_name order by o.total_amount desc) as dr
-from customers as c
-left join orders as o on c.customer_id = o.customer_id
-and o.order_status = "Delivered") as ranked
-where dr = 1;
-
--- Mini Challenge for Q3.3:
--- Problem: For each category, find the product that has been ordered the most number of times (not by
--- revenue, by order count). If two products have the same order count, they should share the same rank.
--- Tables: products, order_items
--- Show: category, product_name, order_count, rank
-
-select * from (
-select p.product_name, p.category, count(oi.order_id) as order_count , dense_rank() over(
-partition by p.category order by count(oi.order_id) desc) as dr
-from products as p 
-join order_items as oi on p.product_id = oi.product_id
-group by p.category, p.product_name) as ranked
-where dr = 1
-order by order_count desc;
-
--- 3.4:  For each customer, find both their first and last order date
-select c.customer_name, min(o.order_date) as First_order, max(o.order_date) as Last_order 
-from customers as c
-join orders as o on c.customer_id = o.customer_id
-group by c.customer_name
-order by c.customer_name;
-
--- Mini Challenge:
--- Problem: For each customer, show their name, first order date, last order date, and the number of 
--- days between their first and last order (call it customer_lifetime_days).
-
-select c.customer_name, min(o.order_date) as First_order, max(o.order_date) as Last_order, 
-datediff(max(o.order_date) , min(o.order_date)) as customer_lifetime_days from customers as c
-join orders as o on c.customer_id = o.customer_id
-group by c.customer_name
-order by c.customer_name;
-
-# Practice questions on above 3 patterns. 3 questions on 3 patterns :
+#Day_2:
 
 
--- PATTERN 4 — Window Functions — Analytics (Running totals, LAG/LEAD)
--- 💡 Why this pattern matters
--- Running totals, moving averages, period-over-period comparisons. LAG looks at the previous row. 
--- LEAD looks at the next row. SUM() OVER computes cumulative totals.
--- Q4.1 — Show monthly revenue along with the cumulative running total for the year.
 
-select * from daily_sales;
-select order_month, monthly_revenue, SUM(monthly_revenue) OVER (ORDER BY order_month) AS running_total
-from (
-select date_format(sale_date, '%Y-%m') as order_month, sum(revenue) as monthly_revenue from daily_sales
-group by date_format(sale_date, '%Y-%m') ) monthly
-order by order_month;
 
 
 

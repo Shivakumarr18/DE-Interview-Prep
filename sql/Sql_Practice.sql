@@ -366,7 +366,76 @@ GROUP BY p.category;
 
 #Day_2:
 
+-- Q2.1 — Customers who never placed an order
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (customers, orders)
+-- ❓ Find all customers who have never placed an order.
 
+select c.customer_id, c.customer_name, c.country from customers as c
+left join orders as o on c.customer_id = o.customer_id
+where o.order_id is Null;
+
+-- Q2.2 — Customers and their order count, including those with zero orders
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (customers, orders)
+-- ❓ Show every customer with their order count. Customers with no orders should show 0.
+
+select c.customer_id, c.customer_name, count(o.order_id) as order_count from customers as c
+left join orders as o on c.customer_id = o.customer_id
+group by c.customer_id, c.customer_name
+order by order_count desc;
+
+-- Q2.3 — Products that have never been ordered
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (products, order_items)
+-- ❓ Find all products that have never appeared in any order.
+
+select * from products;
+select * from customers;
+select * from order_items;
+
+select p.product_name from products as p
+left join order_items as oi on p.product_id = oi.product_id
+where oi.order_item_id is null;
+
+-- Q2.4 — Three-table join: orders with customer name and product details
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (all 4 sheets)
+-- ❓ Show the order_id, customer name, product name, quantity, and total line value for all
+--  delivered orders.
+
+select o.order_id, c.customer_name, p.product_name, oi.quantity, (oi.quantity * oi.unit_price) as 
+total_line_value from order_items as oi
+join orders as o on oi.order_id = o.order_id
+join customers as c on o.customer_id = c.customer_id
+join products as p on oi.product_id = p.product_id
+where o.order_status = 'Delivered'
+order by o.order_id;
+
+-- Practice Problems on Pattern-2:
+
+-- 1. Find all customers who are from the same country as customer named 'Alice Johnson'.
+-- Show: customer_name, country
+-- Exclude Alice Johnson from the results.
+-- Table: customers
+-- Hint: JOIN customers table to itself
+
+select c.customer_name, c.country from customers as c
+join customers as c1 on c.country = c1.country
+where c1.customer_name = 'Alice Johnson' and c.customer_name <> 'Alice Johnson';
+
+-- 2. For each product category, show: total_orders (count of order_items)
+-- → total_revenue (quantity × unit_price), total_customers (distinct customers who ordered)
+-- Only include delivered orders.
+-- Sort by total_revenue descending.
+-- Tables: products, order_items, orders, customers
+
+select p.category, count(oi.order_item_id) as Total_orders, sum(oi.quantity * oi.unit_price) as
+Total_revenue, count(distinct c.customer_id) as Total_customers from order_items as oi
+join orders as o on oi.order_id = o.order_id
+join customers as c on o.customer_id = c.customer_id
+join products as p on oi.product_id = p.product_id
+where o.order_status = 'Delivered'
+group by p.category
+order by Total_revenue desc;
+
+-- Day 3: 
 
 
 

@@ -437,6 +437,95 @@ order by Total_revenue desc;
 
 -- Day 3: 
 
+-- Q3.1 — Top 3 products by revenue per category
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (products, order_items)
+-- ❓ For each product category, find the top 3 products by total revenue.
+
+select * from (
+select p.product_name, p.category, sum(oi.quantity * oi.unit_price) as total_revenue, row_number()
+over(partition by p.category order by sum(oi.quantity * oi.unit_price) desc) as rn
+from order_items as oi
+join products as p on oi.product_id = p.product_id
+group by p.category, p.product_name ) ranked 
+where rn <=3
+order by category, rn
+
+-- Q3.2 — Each customer's most expensive order
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (customers, orders)
+-- ❓ For each customer, find their most expensive order.
+select * from orders;
+
+with ranked as (
+select c.customer_name, o.order_id, o.total_amount, row_number() 
+over(partition by c.customer_id order by o.total_amount desc) as rn
+from orders as o
+join customers as c on o.customer_id = c.customer_id
+)
+select * from ranked
+where rn = 1
+order by total_amount desc;
+
+-- Q3.3 — Rank customers by total spend (handle ties)
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (customers, orders)
+-- ❓ Rank all customers by their total delivered-order spend. Customers with the
+--  same spend should share the same rank.
+
+SELECT c.customer_id,c.customer_name,SUM(o.total_amount) AS total_spend, DENSE_RANK()
+OVER (ORDER BY SUM(o.total_amount) DESC) AS spend_rank
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_status = 'Delivered'
+GROUP BY c.customer_id, c.customer_name
+ORDER BY spend_rank;
+
+-- Q3.4 — Each customer's first and last order
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (orders)
+-- ❓ For each customer, find both their first and last order date.
+
+SELECT c.customer_id, c.customer_name,  MIN(o.order_date) AS first_order, 
+MAX(o.order_date) AS last_order, COUNT(o.order_id) AS total_orders
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_status = 'Delivered'
+GROUP BY c.customer_id, c.customer_name
+ORDER BY c.customer_id;
+
+-- Practice Problems :
+
+-- Find the 2nd highest spending customer overall.
+-- Show: customer_name, total_spent, rank
+-- Delivered orders only.
+
+WITH customer_spend AS (
+  SELECT c.customer_id, c.customer_name, SUM(o.total_amount) AS total_spent,
+    DENSE_RANK() OVER (ORDER BY SUM(o.total_amount) DESC) AS spend_rank
+  FROM customers c
+  JOIN orders o ON c.customer_id = o.customer_id
+  WHERE o.order_status = 'Delivered'
+  GROUP BY c.customer_id, c.customer_name
+)
+SELECT customer_name, total_spent, spend_rank AS ranks FROM customer_spend
+WHERE spend_rank = 2;
+
+-- For each country, find the customer who placed
+-- the most orders. Show:
+-- country, customer_name, order_count, rank
+-- Only show rank = 1 per country.
+-- Delivered orders only.
+
+WITH country_order_counts AS (
+  SELECT c.country,c.customer_id,c.customer_name,COUNT(o.order_id) AS order_count,DENSE_RANK()
+  OVER (PARTITION BY c.country ORDER BY COUNT(o.order_id) DESC) AS country_rank
+  FROM customers c
+  JOIN orders o ON c.customer_id = o.customer_id
+  WHERE o.order_status = 'Delivered'
+  GROUP BY c.country, c.customer_id, c.customer_name
+)
+SELECT country, customer_name,order_count,country_rank AS rankss
+FROM country_order_counts
+WHERE country_rank = 1
+ORDER BY country;
+
 
 
 

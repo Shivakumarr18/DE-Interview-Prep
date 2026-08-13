@@ -526,6 +526,35 @@ FROM country_order_counts
 WHERE country_rank = 1
 ORDER BY country;
 
+-- Pattern : 4
+-- Q4.1 — Running total of monthly revenue
+-- 📂 File: SQL_Practice_3_Sales.xlsx (daily_sales)
+-- ❓ Show monthly revenue along with the cumulative running total for the year.
+
+select * from daily_sales;
+with Monthly as (
+select date_format(sale_date, '%Y-%m') as months, sum(revenue) as monthly_revenue from daily_sales
+group by months
+)
+select months, monthly_revenue, 
+sum(monthly_revenue) over (order by months) as running_total from monthly
+order by months;
+
+-- Q4.2 — Month-over-month revenue change using LAG
+-- 📂 File: SQL_Practice_3_Sales.xlsx (daily_sales)
+-- ❓ For each month, show the revenue, the previous month's revenue, and the % change.
+
+with monthly as (
+select date_format(sale_date, '%Y-%m') as months, sum(revenue) as monthly_revenue from daily_sales
+group by months
+)
+select months, monthly_revenue, lag(monthly_revenue) over (order by months) as previous_month , 
+ROUND(
+    (monthly_revenue - LAG(monthly_revenue) OVER (ORDER BY months)) /
+    NULLIF(LAG(monthly_revenue) OVER (ORDER BY months), 0) * 100
+, 2) AS pct_change from monthly
+order by months;
+
 
 
 

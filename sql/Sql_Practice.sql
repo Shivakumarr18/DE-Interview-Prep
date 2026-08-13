@@ -555,6 +555,40 @@ ROUND(
 , 2) AS pct_change from monthly
 order by months;
 
+-- Q4.3 — 7-day moving average of daily revenue
+-- 📂 File: SQL_Practice_3_Sales.xlsx (daily_sales)
+-- ❓ Compute the 7-day moving average of daily revenue across all regions.
+
+select * from daily_sales;
+
+with daily_revenue as (
+select sale_date, sum(revenue) as daily_revenue from daily_sales
+group by sale_date
+)
+select sale_date, daily_revenue, 
+round(avg(daily_revenue) over (order by sale_date rows between 6 preceding and current row),2)
+as moving_avg_7days_delay from daily_revenue
+order by sale_date;
+
+-- Q4.4 — Time between consecutive orders per customer
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (orders)
+-- ❓ For each customer, calculate the days between consecutive orders.
+
+select o.customer_id, o.order_date, LAG(o.order_date) 
+OVER (PARTITION BY o.customer_id ORDER BY o.order_date) as previous_order, 
+datediff(o.order_date , LAG(o.order_date) OVER (PARTITION BY o.customer_id ORDER BY o.order_date)) as days_difference from orders as o
+order by o.order_date;
+
+-- Version-2 (Query optimization)
+WITH order_lag AS (
+    SELECT  customer_id, order_date,
+        LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date) AS previous_order
+    FROM orders
+)
+SELECT customer_id, order_date, previous_order, DATEDIFF(order_date, previous_order) AS days_difference
+FROM order_lag
+ORDER BY order_date;
+
 
 
 

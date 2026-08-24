@@ -589,6 +589,48 @@ SELECT customer_id, order_date, previous_order, DATEDIFF(order_date, previous_or
 FROM order_lag
 ORDER BY order_date;
 
+-- PATTERN 5 — CTEs & Subqueries
+-- 💡 Why this pattern matters
+-- Complex problems need to be broken into steps. CTEs (WITH clauses) make queries readable.
+--  Always prefer CTEs over nested subqueries — interviewers love readable code.
+
+-- Q5.1 — Customers who spent more than the average customer
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (customers, orders)
+
+select * from customers;
+select * from orders;
+
+with customer_total_spend as (
+select customer_id, sum(total_amount) as total_spend from orders
+where order_status = 'Delivered'
+group by customer_id
+),
+avg_spend as (
+select avg(total_spend) as overall_avg from customer_total_spend)
+select c.customer_id, c.customer_name, ct.total_spend from customer_total_spend as ct
+join customers as c on ct.customer_id = c.customer_id
+cross join avg_spend as a
+where ct.total_spend > a.overall_avg
+order by ct.total_spend desc;
+
+-- Q5.2 — Customers who ordered both Electronics and Furniture
+-- 📂 File: SQL_Practice_1_Ecommerce.xlsx (all sheets)
+-- ❓ Find customers who have ordered both Electronics AND Furniture products.
+
+select * from order_items;
+select * from customers;
+select * from products;
+select * from orders;
+
+WITH customer_categories AS (
+  SELECT DISTINCT o.customer_id, p.category FROM orders o
+  JOIN order_items oi ON o.order_id = oi.order_id
+  JOIN products p ON oi.product_id = p.product_id
+  WHERE p.category IN ('Electronics', 'Furniture')
+)
+SELECT customer_id FROM customer_categories
+GROUP BY customer_id
+HAVING COUNT(DISTINCT category) = 2;
 
 
 

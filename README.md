@@ -3,7 +3,7 @@
 A hands-on repository for strengthening Data Engineering fundamentals
 through practical problem solving and engineering exercises.
 
-## Focus Areas:
+## Focus Areas
 
 - SQL — analytical queries, window functions, CTEs, joins, indexing,
   execution plans, and query optimization

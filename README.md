@@ -14,7 +14,7 @@ through practical problem solving and engineering exercises.
 - Data Warehousing — dimensional modeling, fact/dimension design,
   grain, surrogate keys, and Slowly Changing Dimensions
 - System Design — scalable data pipelines, reliability, idempotency,
-  caching, APIs, and architectural tradeoffs..
+  caching, APIs, and architectural tradeoffs.
 
 ## Approach
 

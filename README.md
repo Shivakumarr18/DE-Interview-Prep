@@ -1,4 +1,4 @@
-# Data Engineering Interview Prep:
+# Data Engineering Interview Prep
 
 A hands-on repository for strengthening Data Engineering fundamentals
 through practical problem solving and engineering exercises.
